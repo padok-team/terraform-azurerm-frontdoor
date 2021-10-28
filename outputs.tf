@@ -1,4 +1,4 @@
-output "example" {
-  value       = "ressource_type.name.atttibute"
-  description = "A meaningful description"
+output "this" {
+  description = "The Frontdoor resource."
+  value       = azurerm_frontdoor.this
 }
