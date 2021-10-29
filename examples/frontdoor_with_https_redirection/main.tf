@@ -1,18 +1,23 @@
-# This example deploys a Frontdoor and redirects its default FQDN to padok.fr. A http to https rule is also deployed.
+terraform {
+  required_version = ">= 0.13.0"
 
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = ">= 2.82.0"
+    }
+  }
+}
 provider "azurerm" {
   features {}
 }
 
-provider "random" {
 
-}
 
-resource "random_string" "random" {
-  length  = 5
-  special = false
-  number  = true
-  upper   = false
+module "resource_group" {
+  source   = "git@github.com:padok-team/terraform-azurerm-resource-group.git?ref=v0.0.2"
+  name     = "example_rg"
+  location = "West Europe"
 }
 
 # Create a resource group to deploy the frontdoor
@@ -20,7 +25,7 @@ module "rg_example" {
   source = "git@github.com:padok-team/terraform-azurerm-resource-group.git?ref=v0.0.2"
 
 
-  name     = "frontdoor_example_${random_string.random.result}"
+  name     = "frontdoor_example"
   location = "West Europe"
 
   tags = {
@@ -32,7 +37,7 @@ module "rg_example" {
 module "frontdoor" {
   source = "git@github.com:padok-team/terraform-azurerm-frontdoor.git?ref=v0.0.1"
 
-  name                = "padokexamplefrontdoor-${random_string.random.result}"
+  name                = "padokexamplefrontdoor"
   resource_group_name = module.rg_example.this.name
 
   backend_pools = [{
@@ -75,7 +80,7 @@ module "frontdoor" {
 
   frontend_endpoints = [{
     name      = "example-frontendendpoint"
-    host_name = "padokexamplefrontdoor-${random_string.random.result}.azurefd.net"
+    host_name = "padokexamplefrontdoor.azurefd.net"
 
     session_affinity_enabled                = null
     session_affinity_ttl_seconds            = null
