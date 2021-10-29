@@ -14,8 +14,8 @@ Terraform module which creates **FRONTDOOR** resources on **AZURE**.
 module "frontdoor" {
   source = "git@github.com:padok-team/terraform-azurerm-frontdoor.git?ref=v0.0.1"
 
-  name                = "padokexamplefrontdoor-${random_string.random.result}"
-  resource_group_name = module.rg_example.this.name
+  name                = "padokexamplefrontdoor"
+  resource_group_name = <your resource group name>
 
   backend_pools = [{
     name = "example-backendpool"
@@ -57,7 +57,7 @@ module "frontdoor" {
 
   frontend_endpoints = [{
     name      = "example-frontendendpoint"
-    host_name = "padokexamplefrontdoor-${random_string.random.result}.azurefd.net"
+    host_name = "padokexamplefrontdoor.azurefd.net"
 
     session_affinity_enabled                = null
     session_affinity_ttl_seconds            = null
