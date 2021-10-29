@@ -1,3 +1,9 @@
+terraform {
+  # Optional attributes and the defaults function are
+  # both experimental, so we must opt in to the experiment.
+  experiments = [module_variable_optional_attrs]
+}
+
 variable "name" {
   description = "The name of the Front Door."
   type        = string
@@ -30,22 +36,59 @@ variable "backend_pool_health_probes" {
   description = "A list of the backend pool health probes."
   type = list(object({
     name                = string
-    enabled             = bool
+    enabled             = optional(bool)
     path                = string
-    protocol            = string
-    probe_method        = string
-    interval_in_seconds = number
+    probe_method        = optional(string)
+    protocol            = optional(string)
+    interval_in_seconds = optional(number)
   }))
+}
+
+variable "backend_pool_health_probes_generic_protocol" {
+  description = "The default value for the protocol parameter of the generic backend pool health probes."
+  type        = string
+  default     = "Https"
+}
+variable "backend_pool_health_probes_generic_probe_method" {
+  description = "The default value for the probe_method parameter of the generic backend pool health probes."
+  type        = string
+  default     = "HEAD"
+}
+variable "backend_pool_health_probes_generic_interval_in_seconds" {
+  description = "The default value for the interval_in_seconds parameter of the generic backend pool health probes."
+  type        = number
+  default     = 120
+}
+variable "backend_pool_health_probes_generic_enabled" {
+  description = "The default value for the protocol parameter of the generic backend pool health probes."
+  type        = bool
+  default     = true
 }
 
 variable "backend_pool_load_balancings" {
   description = "A list of the backend pool load balancing."
   type = list(object({
     name                            = string
-    sample_size                     = number
-    successful_samples_required     = number
-    additional_latency_milliseconds = number
+    sample_size                     = optional(number)
+    successful_samples_required     = optional(number)
+    additional_latency_milliseconds = optional(number)
   }))
+}
+
+variable "backend_pool_load_balancings_generic_sample_size" {
+  description = "The default value for the sample_size parameter in the generic load backend pool load balancing."
+  type        = number
+  default     = 4
+}
+variable "backend_pool_load_balancings_generic_successful_samples_required" {
+  description = "The default value for the successful_samples_required parameter in the generic load backend pool load balancing."
+  type        = number
+  default     = 2
+}
+variable "backend_pool_load_balancings_generic_additional_latency_milliseconds" {
+  description = "The default value for the additional_latency_milliseconds parameter in the generic load backend pool load balancing."
+  type        = number
+  default     = 0
 }
 
 variable "backend_pools_send_receive_timeout_seconds" {
@@ -80,13 +123,31 @@ variable "friendly_name" {
 variable "frontend_endpoints" {
   description = "A list of frontend endpoints to configure."
   type = list(object({
-    name                                    = string
+    name                                    = optional(string)
     host_name                               = string
-    session_affinity_enabled                = bool
-    session_affinity_ttl_seconds            = number
-    web_application_firewall_policy_link_id = string
+    session_affinity_enabled                = optional(bool)
+    session_affinity_ttl_seconds            = optional(number)
+    web_application_firewall_policy_link_id = optional(string)
   }))
   default = null
+}
+
+variable "session_affinity_enabled_generic" {
+  type        = bool
+  description = "Value of session_affinity_enable for all generic frontend_endpoints."
+  default     = false
+}
+
+variable "session_affinity_ttl_seconds_generic" {
+  type        = number
+  description = "Value of session_affinity_ttl_seconds for all generic frontend_endpoints."
+  default     = 0
+}
+
+variable "web_application_firewall_policy_link_id_generic" {
+  type        = string
+  description = "Value of web_application_firewall_policy_link_id for all generic frontend_endpoints."
+  default     = null
 }
 
 variable "routing_rules" {
