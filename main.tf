@@ -1,4 +1,3 @@
-
 resource "azurerm_frontdoor" "this" {
   name                = var.name
   resource_group_name = var.resource_group_name
@@ -30,11 +29,11 @@ resource "azurerm_frontdoor" "this" {
     for_each = var.backend_pool_health_probes
     content {
       name                = backend_pool_health_probe.value["name"]
-      enabled             = backend_pool_health_probe.value["enabled"]
+      enabled             = coalesce(backend_pool_health_probe.value["enabled"], var.backend_pool_health_probes_generic_enabled)
       path                = backend_pool_health_probe.value["path"]
-      protocol            = backend_pool_health_probe.value["protocol"]
-      probe_method        = backend_pool_health_probe.value["probe_method"]
-      interval_in_seconds = backend_pool_health_probe.value["interval_in_seconds"]
+      protocol            = coalesce(backend_pool_health_probe.value["protocol"], var.backend_pool_health_probes_generic_protocol)
+      probe_method        = coalesce(backend_pool_health_probe.value["probe_method"], var.backend_pool_health_probes_generic_probe_method)
+      interval_in_seconds = coalesce(backend_pool_health_probe.value["interval_in_seconds"], var.backend_pool_health_probes_generic_interval_in_seconds)
     }
   }
 
@@ -42,9 +41,9 @@ resource "azurerm_frontdoor" "this" {
     for_each = var.backend_pool_load_balancings
     content {
       name                            = backend_pool_load_balancing.value["name"]
-      sample_size                     = backend_pool_load_balancing.value["sample_size"]
-      successful_samples_required     = backend_pool_load_balancing.value["successful_samples_required"]
-      additional_latency_milliseconds = backend_pool_load_balancing.value["additional_latency_milliseconds"]
+      sample_size                     = coalesce(backend_pool_load_balancing.value["sample_size"], var.backend_pool_load_balancings_generic_sample_size)
+      successful_samples_required     = coalesce(backend_pool_load_balancing.value["successful_samples_required"], var.backend_pool_load_balancings_generic_successful_samples_required)
+      additional_latency_milliseconds = coalesce(backend_pool_load_balancing.value["additional_latency_milliseconds"], var.backend_pool_load_balancings_generic_additional_latency_milliseconds)
     }
   }
 
@@ -56,11 +55,11 @@ resource "azurerm_frontdoor" "this" {
   dynamic "frontend_endpoint" {
     for_each = var.frontend_endpoints
     content {
-      name                                    = frontend_endpoint.value["name"]
+      name                                    = coalesce(frontend_endpoint.value["name"], replace(frontend_endpoint.value["host_name"], ".", "-"))
       host_name                               = frontend_endpoint.value["host_name"]
-      session_affinity_enabled                = frontend_endpoint.value["session_affinity_enabled"]
-      session_affinity_ttl_seconds            = frontend_endpoint.value["session_affinity_ttl_seconds"]
-      web_application_firewall_policy_link_id = frontend_endpoint.value["web_application_firewall_policy_link_id"]
+      session_affinity_enabled                = coalesce(frontend_endpoint.value["session_affinity_enabled"], var.session_affinity_enabled_generic)
+      session_affinity_ttl_seconds            = coalesce(frontend_endpoint.value["session_affinity_ttl_seconds"], var.session_affinity_ttl_seconds_generic)
+      web_application_firewall_policy_link_id = coalesce(frontend_endpoint.value["web_application_firewall_policy_link_id"], var.web_application_firewall_policy_link_id_generic)
     }
   }
 
@@ -76,13 +75,14 @@ resource "azurerm_frontdoor" "this" {
       dynamic "forwarding_configuration" {
         for_each = routing_rule.value.forwarding_configuration != null ? [1] : []
         content {
-          backend_pool_name             = routing_rule.value.forwarding_configuration["backend_pool_name"]
-          cache_enabled                 = routing_rule.value.forwarding_configuration["cache_enabled"]
-          cache_use_dynamic_compression = routing_rule.value.forwarding_configuration["cache_use_dynamic_compression"]
-          cache_query_parameters        = routing_rule.value.forwarding_configuration["cache_query_parameters"]
-          cache_duration                = routing_rule.value.forwarding_configuration["cache_duration"]
-          custom_forwarding_path        = routing_rule.value.forwarding_configuration["custom_forwarding_path"]
-          forwarding_protocol           = routing_rule.value.forwarding_configuration["forwarding_protocol"]
+          backend_pool_name                     = routing_rule.value.forwarding_configuration["backend_pool_name"]
+          cache_enabled                         = routing_rule.value.forwarding_configuration["cache_enabled"]
+          cache_use_dynamic_compression         = routing_rule.value.forwarding_configuration["cache_use_dynamic_compression"]
+          cache_query_parameter_strip_directive = routing_rule.value.forwarding_configuration["cache_query_parameter_strip_directive"]
+          cache_query_parameters                = routing_rule.value.forwarding_configuration["cache_query_parameters"]
+          cache_duration                        = routing_rule.value.forwarding_configuration["cache_duration"]
+          custom_forwarding_path                = routing_rule.value.forwarding_configuration["custom_forwarding_path"]
+          forwarding_protocol                   = routing_rule.value.forwarding_configuration["forwarding_protocol"]
         }
       }
 

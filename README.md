@@ -12,7 +12,7 @@ Terraform module which creates **FRONTDOOR** resources on **AZURE**.
 ```hcl
 
 module "frontdoor" {
-  source = "git@github.com:padok-team/terraform-azurerm-frontdoor.git?ref=v0.0.1"
+  source = "git@github.com:padok-team/terraform-azurerm-frontdoor.git?ref=v0.1.0"
 
   name                = "padokexamplefrontdoor"
   resource_group_name = <your resource group name>

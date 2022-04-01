@@ -35,7 +35,7 @@ module "rg_example" {
 }
 
 module "frontdoor" {
-  source = "git@github.com:padok-team/terraform-azurerm-frontdoor.git?ref=v0.0.1"
+  source = "../../"
 
   name                = "padokexamplefrontdoor"
   resource_group_name = module.rg_example.this.name
